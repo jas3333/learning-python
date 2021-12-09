@@ -21,7 +21,8 @@ class Main:
         # Declare the main window
         self.window = tk.Tk()
         # Set window geometry
-        self.window.geometry("1600x1900")
+        self.window.geometry("1000x1300")
+        self.window.title("My-Notepad")
         # Disable window resizing
         self.window.resizable(0, 0)
 
@@ -46,43 +47,69 @@ class Main:
 
         # Keybinds
         self.textbox.bind("<Control_L>s", self.save_as_file)
-        self.textbox.bind("<Control_L>l", self.load_file)
         self.textbox.bind("<F1>", self.cycle_files_down)
         self.textbox.bind("<F2>",  self.cycle_files_up)
-        self.textbox.bind("<Control_L>n", self.newfile)
+        self.textbox.bind("<Control_L>n", self.ask_file_name)
        
 
+    # Will save the file if ctrl + s is hit. 
     def save_as_file(self, event):
         self.get_files()
         if self.file in self.file_list:
             with open(self.path + self.file_list[self.file_number], "w+") as self.file:
                 text = self.textbox.get(1.0, "end")
                 self.file.write(text)
+        # I don't think this is needed with this type of notepad since the file will
+        # always be in the file_list
         else:
             text = self.textbox.get(1.0, "end")
             self.file = asksaveasfile(defaultextension=".txt")
             self.file.write(text)
 
 
-    def newfile(self, event):
+    # Creates a popup window with an entry widget so we can get the
+    # user to enter a new file name
+    def ask_file_name(self, event):
+        create_new_window = tk.Toplevel(self.window)
+        create_new_window.geometry("300x100")
+        create_new_window.resizable(0, 0)
+        create_new_window.focus_set()
+        
+        entry_box = tk.Entry(create_new_window)
+        entry_box.pack()
+
+        # This button will pass the file name and window to get_file_name
+        # so it can get info and close the window
+        ok_button = tk.Button(create_new_window, text="Ok", command=lambda:self.get_file_name(entry_box, create_new_window))
+        ok_button.pack()
+
+        cancel_button = tk.Button(create_new_window, text="Cancel", command=lambda: create_new_window.destroy())
+                
+
+    
+    # Gets the new file name from ask_file_name and creates a new file 
+    def get_file_name(self, filename, popup):
         self.textbox.delete(1.0, "end")
-        self.file = asksaveasfile(initialdir=self.path, defaultextension=".txt")
-        if self.file:
-            text = self.textbox.get(1.0, "end")
-            self.file.write(text)
-            self.get_files()
-            for file, index in enumerate(self.file_list):
-                if self.file == file:
-                    self.file_number = index
-            self.file_label.config(text=self.file_list[self.file_number])
+        text = self.textbox.get(1.0)
+        self.file = filename.get()  
+        file = self.file
+        # Kills the popup window after getting the info from it
+        popup.destroy()
+
+        with open(self.path + file, "w+") as file:
+            file.write(text)
+        self.get_files()
+        
+        # Updates the file_lable file so we can see what file we currently are using
+        for index, file in enumerate(self.file_list):
+            print(f"Index: {index} File: {file} Filename: {self.file}")
+            if self.file == file:
+                self.file_number = index
+        # Updates the file_label
+        self.file_label.config(text=self.file_list[self.file_number])
 
 
-    def load_file(self, event):
-        self.file = askopenfile(parent=self.window, mode="rb", title="Choose a file")
-        if self.file:
-            self.textbox.insert(1.0, self.file.read())
-
-
+    # Get files in a directory and append them to a list
     def get_files(self):
         files = os.listdir(self.path)
         for f in files:
@@ -90,6 +117,7 @@ class Main:
                 self.file_list.append(f)
 
 
+    # Start the notebook using file in file_list[0]
     def note_start(self):
         self.get_files()
         with open(self.path + self.file_list[self.file_number]) as file:
@@ -99,45 +127,58 @@ class Main:
         self.textbox.focus_set()
         
 
+    # Cycle up through the txt files in reference directory
     def cycle_files_up(self, event):
+        # Update the file list 
         self.get_files()
         textbox_text = self.textbox.get(1.0, "end")
 
+        # This will check if there are any changes in the current file.
+        # If there is it will save the file before loading up the next.
         with open(self.path + self.file_list[self.file_number], "w+") as file:
             file_text = file.read()
             if len(textbox_text) != len(file_text):
                 file.write(textbox_text)
 
+        # This will make sure we don't get an index out of range error.
         if self.file_number == len(self.file_list) - 1:
             self.file_number = 0
         else:
             self.file_number += 1
 
+        # Gets text from file so we can insert it into textbox 
         with open(self.path + self.file_list[self.file_number]) as file:
             file_text = file.read()
-            self.textbox.delete(1.0, "end")
-            self.textbox.insert(1.0, file_text)
-            self.file_label.config(text=self.file_list[self.file_number])
-            self.file = self.file_list[self.file_number]
+
+        # Clears the textbox and inserts new text from the new file
+        self.textbox.delete(1.0, "end")
+        self.textbox.insert(1.0, file_text)
+        self.file_label.config(text=self.file_list[self.file_number])
+        self.file = self.file_list[self.file_number]
 
 
+    # Cycle down through the txt files in reference directory
     def cycle_files_down(self, event):
         self.get_files()
         textbox_text = self.textbox.get(1.0, "end")
 
+        # Checks for any changes in the file and saves if a change was made 
         with open(self.path + self.file_list[self.file_number], "w+") as file:
             file_text = file.read()
             if len(textbox_text) != len(file_text):
                 file.write(textbox_text)
 
+        # Sets the list index back kto the top
         if self.file_number == 0:
             self.file_number = len(self.file_list) - 1
         else:
             self.file_number -= 1
 
+        # Open the file and store the text in file_text
         with open(self.path + self.file_list[self.file_number]) as file:
             file_text = file.read()
 
+        # Clear the textbox and insert the text from the new file
         self.textbox.delete(1.0, "end")
         self.textbox.insert(1.0, file_text)
         self.file_label.config(text=self.file_list[self.file_number])
