@@ -18,7 +18,7 @@ class Main:
 
     # --Create Window/Frame/Panel
         self.app = wx.App()
-        self.frame = wx.Frame(None, title="VM-Tool", size = (777, 400), style=wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER))
+        self.frame = wx.Frame(None, title="VM-Tool", size = (800, 500), style=wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER))
         self.panel = wx.Panel(self.frame)
 
         self.get_vms()
@@ -44,7 +44,7 @@ class Main:
     # --Show VM List--
         
         # Static Box
-        self.vm_list_box = wx.StaticBox(self.panel, size=(550, 180), label="VMs", pos=(220, 5))
+        self.vm_list_box = wx.StaticBox(self.panel, size=(570, 180), label="VMs", pos=(220, 5))
 
         # Combo Box
         self.vm_list_combo = wx.ComboBox(self.vm_list_box, choices=self.vm_list, pos=(5, 5))
@@ -61,22 +61,22 @@ class Main:
         self.delete_button.Bind(wx.EVT_BUTTON, self.delete_vm)
 
     # -- Options 
-        self.options_box = wx.StaticBox(self.panel, size=(765, 200), label="Options", pos=(5, 190))
+        self.options_box = wx.StaticBox(self.panel, size=(785, 200), label="Options", pos=(5, 190))
 
         # Combo Box
         self.core_combo = wx.ComboBox(self.options_box, choices=self.cores_list, pos=(5, 5))
         self.core_combo.Bind(wx.EVT_COMBOBOX, self.on_core_select) 
 
         # Labels
-        self.core_label = wx.StaticText(self.options_box, label="Cores", pos=(80, 10))
-        self.memory_label = wx.StaticText(self.options_box, label="Ram(GB)", pos=(195, 10))
+        self.core_label = wx.StaticText(self.options_box, label="Cores", pos=(115, 10))
+        self.memory_label = wx.StaticText(self.options_box, label="Ram(GB)", pos=(225, 10))
         self.launch_options_label_1 = wx.StaticText(self.options_box, label="", pos=(10, 100))
         self.launch_options_label_2 = wx.StaticText(self.options_box, label="", pos=(10, 120))
         self.launch_options_label_3 = wx.StaticText(self.options_box, label="", pos=(10, 140))
 
 
         # Text Entry
-        self.memory_entry = wx.TextCtrl(self.options_box, size=(40, 30), pos=(150, 5))
+        self.memory_entry = wx.TextCtrl(self.options_box, size=(40, 30), pos=(170, 5))
 
         # Test Button
         self.test_button = wx.Button(self.options_box, label="Test", pos=(5, 50))
@@ -107,10 +107,10 @@ class Main:
         self.mem_amount = self.memory_entry.GetValue()
 
         if self.selected_iso == "":
-            os.system("qemu-system-x86_64 -enable-kvm -serial none -drive file=" + self.path + self.selected_vm + " -m " + self.mem_amount + 
+            os.system("qemu-system-x86_64 -enable-kvm -bios /usr/share/ovmf/x64/OVMF.fd -serial none -drive file=" + self.path + self.selected_vm + " -m " + self.mem_amount + 
                       "G -cpu host -smp " + self.cores + " -vga virtio -display sdl,gl=on")
         else:
-            os.system("qemu-system-x86_64 -enable-kvm -serial none -cdrom " + self.iso_path + self.selected_iso + " -drive file=" + 
+            os.system("qemu-system-x86_64 -enable-kvm -bios /usr/share/ovmf/x64/OVMF.fd -serial none -cdrom " + self.iso_path + self.selected_iso + " -drive file=" + 
                        self.path + self.selected_vm + " -m " + self.mem_amount + "G -cpu host -smp " + self.cores + " -vga virtio -display sdl,gl=on")
 
     def on_core_select(self, event):
@@ -119,7 +119,7 @@ class Main:
 
     def update_label(self):
         if self.selected_iso == "":
-            self.launch_options_label_1.SetLabel("qemu-system-x86_64 -enable-kvm -serial none -drive file=" + self.path + self.selected_vm)  
+            self.launch_options_label_1.SetLabel("qemu-system-x86_64 -enable-kvm -bios /usr/share/ovmf/x64/OVMF.fd -serial none -drive file=" + self.path + self.selected_vm)  
             self.launch_options_label_2.SetLabel(" -m " + self.mem_amount + "G -cpu host -smp ") 
             self.launch_options_label_3.SetLabel(self.cores + " -vga virtio -display sdl,gl=on")
         else:
