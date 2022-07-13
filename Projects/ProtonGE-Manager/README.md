@@ -5,7 +5,7 @@ A simple python GUI script made with wxpython.
 - Pulls last 10 ProtonGE releases and only shows the ones you are missing.
 - Easily install latest ProtonGE versions
 
-![](.screenshot/ProtonGE-Manager.png)
+![](screenshot/ProtonGE-Manager.png)
 
 ###### How it Works:
 - Clicking install will download the version you have selected in the missing list.
