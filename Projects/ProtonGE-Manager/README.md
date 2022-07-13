@@ -10,4 +10,8 @@ A simple python GUI script made with wxpython.
 - Once downloaded it will extract the downloaded tar into the compatibility.d folder.
 - After the extraction it will remove the downloaded .tar file.
 
+###### Dependencies:
+- wxPython
+- requests
+
 ![](screenshot/ProtonGE-Manager.png)
